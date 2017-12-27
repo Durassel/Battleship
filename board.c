@@ -3,7 +3,7 @@
 #include "constants.h"
 #include "board.h"
 
-void initBoard(Cell board[ROWS][COLUMNS])
+void init(Cell board[ROWS][COLUMNS])
 {
     int i, j;
     for (i = 0; i < ROWS; i++) {

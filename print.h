@@ -3,8 +3,8 @@
 
 #include "structures.h"
 
-void printBoards(Cell Main[ROWS][COLUMNS], Cell Mark[ROWS][COLUMNS]);
-void printMain(Cell Main[ROWS][COLUMNS]);
+void print(Cell Main[ROWS][COLUMNS], Cell Mark[ROWS][COLUMNS]);
+void refresh(Cell board[ROWS][COLUMNS]);
 
 #endif // PRINT_H_INCLUDED
 

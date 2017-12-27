@@ -4,14 +4,14 @@
 #include "structures.h"
 
 void flush();
-int read(char *str, int size);
-int tens(char coordinates[4]);
-int testCoordinates(char start[4], Cell Main[ROWS][COLUMNS]);
-void coordinates(char *start, Cell Main[ROWS][COLUMNS]);
-int selectDirection(Cell Main[ROWS][COLUMNS], char *direction, char *start, int size);
+int input(char *str, int size);
+int multipleCoordinates(char coordinates[4]);
 int convertColumnToInt(char column);
-void createShip(int size, char type, char start[4], char direction[2], Cell Main[ROWS][COLUMNS]);
-void initShips(Cell Main[ROWS][COLUMNS]);
+int check(Cell Main[ROWS][COLUMNS], char coordinates[4]);
+void selectCoordinates(Cell Main[ROWS][COLUMNS], char coordinates[4]);
+int selectDirection(Cell Main[ROWS][COLUMNS], char coordinates[4], char direction[2], int size);
+void create(Cell Main[ROWS][COLUMNS], char coordinates[4], char direction[2], int size, char type);
+void setup(Cell Main[ROWS][COLUMNS]);
 
 #endif // SHIP_H_INCLUDED
 

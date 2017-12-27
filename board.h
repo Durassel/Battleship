@@ -3,7 +3,7 @@
 
 #include "structures.h"
 
-void initBoard(Cell board[ROWS][COLUMNS]);
+void init(Cell board[ROWS][COLUMNS]);
 
 #endif // BOARD_H_INCLUDED
 

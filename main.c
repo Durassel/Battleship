@@ -13,17 +13,17 @@ int main()
     Cell Mark[ROWS][COLUMNS];
 
     // Boards initialization
-    initBoard(Main);
-    initBoard(Mark);
+    init(Main);
+    init(Mark);
 
     // Printing boards
-    printBoards(Main, Mark);
+    print(Main, Mark);
 
     // Ships placement
-    initShips(Main);
+    setup(Main);
 
     // Printing boards
-    printBoards(Main, Mark);
+    print(Main, Mark);
 
     // Game starts
 

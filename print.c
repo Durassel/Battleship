@@ -2,7 +2,7 @@
 #include "constants.h"
 #include "print.h"
 
-void printBoards(Cell Main[ROWS][COLUMNS], Cell Mark[ROWS][COLUMNS])
+void print(Cell Main[ROWS][COLUMNS], Cell Mark[ROWS][COLUMNS])
 {
     char c;
     int i, j;
@@ -33,7 +33,7 @@ void printBoards(Cell Main[ROWS][COLUMNS], Cell Mark[ROWS][COLUMNS])
     printf("\n\n");
 }
 
-void printMain(Cell Main[ROWS][COLUMNS])
+void refresh(Cell board[ROWS][COLUMNS])
 {
     char c;
     int i, j;
@@ -47,7 +47,7 @@ void printMain(Cell Main[ROWS][COLUMNS])
             printf("%d", i + 1);
         // Printing main board
         for (j = 0; j < COLUMNS; j++)
-            printf("%c ", Main[i][j].type);
+            printf("%c ", board[i][j].type);
         printf("\n");
     }
     // Printing columns
