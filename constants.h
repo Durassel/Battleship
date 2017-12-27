@@ -1,0 +1,12 @@
+#define ROWS 10
+#define COLUMNS 10
+
+#define CARRIER_SIZE 5
+#define BATTLESHIP_SIZE 4
+#define SUBMARINE_SIZE 3
+#define DESTROYER_SIZE 2
+
+#define CARRIER_NB 1
+#define BATTLESHIP_NB 2
+#define SUBMARINE_NB 3
+#define DESTROYER_NB 4
