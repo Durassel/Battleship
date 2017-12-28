@@ -3,13 +3,6 @@
 
 #include "structures.h"
 
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include "constants.h"
-#include "ship.h"
-#include "print.h"
-
 void flush(void);
 int input(char *str, int size);
 int multipleCoordinates(char inputs[4]);
