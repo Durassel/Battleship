@@ -5,6 +5,14 @@
 #include "ship.h"
 #include "print.h"
 
+char lower(char c)
+{
+    if (c >= 'A' && c <= 'Z')
+        return c + 32;
+    else
+        return c;
+}
+
 void flush(void)
 {
     int c = 0;
@@ -57,12 +65,11 @@ void convertInputsToCoordinates(char inputs[4], int coordinates[2])
     coordinates[0]--;
 }
 
-int check(Cell Main[ROWS][COLUMNS], int coordinates[2])
+int checkCoordinates(int coordinates[2])
 {
-    int result;
+    int result = 0;
 
     // Check column
-    result = 0;
     if (coordinates[1] >= 0 && coordinates[1] < COLUMNS)
         result = 1;
     else
@@ -75,21 +82,19 @@ int check(Cell Main[ROWS][COLUMNS], int coordinates[2])
         else
             printf("\t\tError: coordinates are false.\n");
     }
-    // Check if cell empty
-    if (result == 1) {
-        result = 0;
-        if (Main[coordinates[0]][coordinates[1]].type != '-') {
-            printf("\t\tError: a ship already exists at this position.\n");
-            result = 0;
-        } else {
-            result = 1;
-        }
-    }
 
     return result;
 }
 
-void selectCoordinates(Cell Main[ROWS][COLUMNS], int coordinates[2])
+int checkCell(Cell Main[ROWS][COLUMNS], int coordinates[2], char c)
+{
+    // Check if cell is empty
+    if (Main[coordinates[0]][coordinates[1]].type != c)
+        return 0;
+    return 1;
+}
+
+void selectCoordinates(Cell Main[ROWS][COLUMNS], int coordinates[2], char message[100])
 {
     int result;
     char inputs[4] = {(int) NULL};
@@ -97,7 +102,12 @@ void selectCoordinates(Cell Main[ROWS][COLUMNS], int coordinates[2])
         printf("\tEnter coordinates (Ex: A1) : ");
         input(inputs, 4);
         convertInputsToCoordinates(inputs, coordinates); // Convert B3 into 2-1 (row - column)
-        result = check(Main, coordinates); // Check validity
+        result = checkCoordinates(coordinates); // Check validity
+        if (result == 1) {
+            result = checkCell(Main, coordinates, '-'); // Check cell is empty
+            if (result == 0)
+                printf("\t\t%s\n", message);
+        }
     } while(result == 0);
 }
 
@@ -157,7 +167,7 @@ void create(Cell Main[ROWS][COLUMNS], int coordinates[2], char direction[2], int
         if (direction[0] == 'v') {
             Main[coordinates[0] + i][coordinates[1]].type = type;
             if (i + 1 < size)
-                Main[coordinates[0] + i][coordinates[1]].next = &Main[coordinates[0] + i][coordinates[1]];
+                Main[coordinates[0] + i][coordinates[1]].next = &Main[coordinates[0] + i + 1][coordinates[1]];
             if (i > 0)
                 Main[coordinates[0] + i][coordinates[1]].prev = &Main[coordinates[0] + i - 1][coordinates[1]];
         } else if (direction[0] == 'h') {
@@ -177,12 +187,12 @@ void setup(Cell Main[ROWS][COLUMNS])
     char direction[2];
 
     // Ships initialization
-    printf("---------------------- Ships initialization ----------------------\n");
+    //printf("---------------------- Ships initialization ----------------------\n");
     // Carrier initialization
     printf("%d carrier of size %d :\n", CARRIER_NB, CARRIER_SIZE);
     for (i = 0; i < CARRIER_NB; i++) {
         do { // Enter coordinates, check validity
-            selectCoordinates(Main, coordinates);
+            selectCoordinates(Main, coordinates, "Error: a ship already exists at this position.");
             // Ask direction : vertical or horizontal
             result = selectDirection(Main, coordinates, direction, CARRIER_SIZE);
         } while (result == 0);
@@ -194,7 +204,7 @@ void setup(Cell Main[ROWS][COLUMNS])
     printf("%d battleship of size %d :\n", BATTLESHIP_NB, BATTLESHIP_SIZE);
     for (i = 0; i < BATTLESHIP_NB; i++) {
         do { // Enter coordinates, check validity
-            selectCoordinates(Main, coordinates);
+            selectCoordinates(Main, coordinates, "Error: a ship already exists at this position.");
             // Ask direction : vertical or horizontal
             result = selectDirection(Main, coordinates, direction, BATTLESHIP_SIZE);
         } while (result == 0);
@@ -206,7 +216,7 @@ void setup(Cell Main[ROWS][COLUMNS])
     printf("%d submarine of size %d :\n", SUBMARINE_NB, SUBMARINE_SIZE);
     for (i = 0; i < SUBMARINE_NB; i++) {
         do { // Enter coordinates, check validity
-            selectCoordinates(Main, coordinates);
+            selectCoordinates(Main, coordinates, "Error: a ship already exists at this position.");
             // Ask direction : vertical or horizontal
             result = selectDirection(Main, coordinates, direction, SUBMARINE_SIZE);
         } while (result == 0);
@@ -218,7 +228,7 @@ void setup(Cell Main[ROWS][COLUMNS])
     printf("%d destroyer of size %d :\n", DESTROYER_NB, DESTROYER_SIZE);
     for (i = 0; i < DESTROYER_NB; i++) {
         do { // Enter coordinates, check validity
-            selectCoordinates(Main, coordinates);
+            selectCoordinates(Main, coordinates, "Error: a ship already exists at this position.");
             // Ask direction : vertical or horizontal
             result = selectDirection(Main, coordinates, direction, DESTROYER_SIZE);
         } while (result == 0);
@@ -228,3 +238,33 @@ void setup(Cell Main[ROWS][COLUMNS])
     }
 }
 
+int check(Cell Main[ROWS][COLUMNS], int coordinates[2])
+{
+    int size = 0, hit = 0;
+    // Pointers to browse the ship
+    Cell *p = Main[coordinates[0]][coordinates[1]].prev;
+    Cell *n = Main[coordinates[0]][coordinates[1]].next;
+
+    // Check if all cell of the ship is lower case
+    // Prev
+    while (p != NULL) {
+        if (p->type >= 'a' && p->type <= 'z') {
+            hit++;
+        }
+        size++;
+        p = p->prev;
+    }
+
+    // Next
+    while (n != NULL) {
+        if (n->type >= 'a' && n->type <= 'z') {
+            hit++;
+        }
+        size++;
+        n = n->prev;
+    }
+
+    if (size == hit)
+        return 1;
+    return 0;
+}
