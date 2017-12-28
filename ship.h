@@ -3,14 +3,21 @@
 
 #include "structures.h"
 
-void flush();
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include "constants.h"
+#include "ship.h"
+#include "print.h"
+
+void flush(void);
 int input(char *str, int size);
-int multipleCoordinates(char coordinates[4]);
-int convertColumnToInt(char column);
-int check(Cell Main[ROWS][COLUMNS], char coordinates[4]);
-void selectCoordinates(Cell Main[ROWS][COLUMNS], char coordinates[4]);
-int selectDirection(Cell Main[ROWS][COLUMNS], char coordinates[4], char direction[2], int size);
-void create(Cell Main[ROWS][COLUMNS], char coordinates[4], char direction[2], int size, char type);
+int multipleCoordinates(char inputs[4]);
+void convertInputsToCoordinates(char inputs[4], int coordinates[2]);
+int check(Cell Main[ROWS][COLUMNS], int coordinates[2]);
+void selectCoordinates(Cell Main[ROWS][COLUMNS], int coordinates[2]);
+int selectDirection(Cell Main[ROWS][COLUMNS], int coordinates[2], char direction[2], int size);
+void create(Cell Main[ROWS][COLUMNS], int coordinates[2], char direction[2], int size, char type);
 void setup(Cell Main[ROWS][COLUMNS]);
 
 #endif // SHIP_H_INCLUDED

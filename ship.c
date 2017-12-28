@@ -5,7 +5,7 @@
 #include "ship.h"
 #include "print.h"
 
-void flush()
+void flush(void)
 {
     int c = 0;
     while (c != '\n' && c != EOF)
@@ -29,63 +29,56 @@ int input(char *str, int size)
     }
 }
 
-int multipleCoordinates(char coordinates[4])
+int multipleCoordinates(char inputs[4])
 {
     int i;
     for (i = 0; i < 10; i++) {
-        if ((int) (coordinates[2] - '0') == i)
+        if ((int) (inputs[2] - '0') == i)
             return 1;
     }
     return 0;
 }
 
-int convertColumnToInt(char column)
+void convertInputsToCoordinates(char inputs[4], int coordinates[2])
 {
-    int i = 0;
     char c;
+    coordinates[1] = 0;
     for (c = 'A'; c < 'A' + COLUMNS; c++) {
-        if (column == c)
+        if (inputs[0] == c)
             break;
-        i++;
+        coordinates[1]++;
     }
-    return i;
+
+    if (multipleCoordinates(inputs)) {
+        coordinates[0] = ((int) (inputs[1] - '0') * 10) + (int) (inputs[2] - '0');
+    } else {
+        coordinates[0] = (int) (inputs[1] - '0');
+    }
+    coordinates[0]--;
 }
 
-int check(Cell Main[ROWS][COLUMNS], char coordinates[4])
+int check(Cell Main[ROWS][COLUMNS], int coordinates[2])
 {
-    int i, row, column, result;
-    char c;
+    int result;
 
     // Check column
     result = 0;
-    for (c = 'A'; c < 'A' + COLUMNS; c++) {
-        if (coordinates[0] == c)
-            result = 1;
-    }
+    if (coordinates[1] >= 0 && coordinates[1] < COLUMNS)
+        result = 1;
+    else
+        printf("\t\tError: coordinates are false.\n");
     // Check row
     if (result == 1) {
         result = 0;
-        for (i = 1; i < ROWS + 1; i++) {
-            if (multipleCoordinates(coordinates)) {
-                if ((int) (coordinates[1] - '0') == i / 10 && (int) (coordinates[2] - '0') == i % 10)
-                    result = 1;
-            } else {
-                if ((int) (coordinates[1] - '0') == i)
-                    result = 1;
-            }
-        }
+        if (coordinates[0] >= 0 && coordinates[0] < ROWS)
+            result = 1;
+        else
+            printf("\t\tError: coordinates are false.\n");
     }
     // Check if cell empty
     if (result == 1) {
         result = 0;
-        if (multipleCoordinates(coordinates)) {
-            row = ((int) (coordinates[1] - '0') * 10) + (int) (coordinates[2] - '0') - 1;
-            column = convertColumnToInt(coordinates[0]);
-        } else {
-            row = (int) (coordinates[1] - '0') - 1;
-            column = convertColumnToInt(coordinates[0]);
-        }
-        if (Main[row][column].type != '-') {
+        if (Main[coordinates[0]][coordinates[1]].type != '-') {
             printf("\t\tError: a ship already exists at this position.\n");
             result = 0;
         } else {
@@ -96,20 +89,21 @@ int check(Cell Main[ROWS][COLUMNS], char coordinates[4])
     return result;
 }
 
-void selectCoordinates(Cell Main[ROWS][COLUMNS], char coordinates[4])
+void selectCoordinates(Cell Main[ROWS][COLUMNS], int coordinates[2])
 {
     int result;
+    char inputs[4] = {(int) NULL};
     do { // Start coordinates
         printf("\tEnter coordinates (Ex: A1) : ");
-        input(coordinates, 4);
+        input(inputs, 4);
+        convertInputsToCoordinates(inputs, coordinates); // Convert B3 into 2-1 (row - column)
         result = check(Main, coordinates); // Check validity
     } while(result == 0);
 }
 
-int selectDirection(Cell Main[ROWS][COLUMNS], char coordinates[4], char direction[2], int size)
+int selectDirection(Cell Main[ROWS][COLUMNS], int coordinates[2], char direction[2], int size)
 {
     int i, result;
-    int row, column;
     do { // Start coordinates
         result = 0;
         printf("\tVertical or horizontal (v/h) : ");
@@ -120,24 +114,14 @@ int selectDirection(Cell Main[ROWS][COLUMNS], char coordinates[4], char directio
 
     // Check if the ship don't overflow of array
     if (direction[0] == 'v') {
-        if (multipleCoordinates(coordinates)) {
-            row = ((int) (coordinates[1] - '0') * 10) + (int) (coordinates[2] - '0');
-            if (row + size - 1 > ROWS) {
-                printf("\t\tError: the ship overflow the array.\n");
-                return 0;
-            } else {
-                result = 1;
-            }
+        if (coordinates[0] + size > ROWS) {
+            printf("\t\tError: the ship overflow the array.\n");
+            return 0;
         } else {
-            if ((int) (coordinates[1] - '0') + size - 1 > ROWS) {
-                printf("\t\tError: the ship overflow the array.\n");
-                return 0;
-            } else {
-                result = 1;
-            }
+            result = 1;
         }
     } else if (direction[0] == 'h') {
-        if (coordinates[0] + size - 1 > 'A' + COLUMNS - 1) {
+        if (coordinates[1] + size > COLUMNS) {
             printf("\t\tError: the ship overflow the array.\n");
             return 0;
         } else {
@@ -146,28 +130,16 @@ int selectDirection(Cell Main[ROWS][COLUMNS], char coordinates[4], char directio
     }
     // Check if the ship don't overcome another ship
     if (direction[0] == 'v') {
-        if (multipleCoordinates(coordinates)) {
-            row = ((int) (coordinates[1] - '0') * 10) + (int) (coordinates[2] - '0') - 1;
-        } else {
-            row = (int) (coordinates[1] - '0') - 1;
-        }
-        column = convertColumnToInt(coordinates[0]);
-        for (i = row; i < row + size; i++) {
-            if (Main[i][column].type != '-') {
+        for (i = coordinates[0]; i < coordinates[0] + size; i++) {
+            if (Main[i][coordinates[1]].type != '-') {
                 printf("\t\tError: a ship already exists at this position.\n");
                 return 0;
             }
         }
         result = 1;
     } else if (direction[0] == 'h') {
-        if (multipleCoordinates(coordinates)) {
-            row = ((int) (coordinates[1] - '0') * 10) + (int) (coordinates[2] - '0') - 1;
-        } else {
-            row = (int) (coordinates[1] - '0') - 1;
-        }
-        column = convertColumnToInt(coordinates[0]);
-        for (i = column; i < column + size; i++) {
-            if (Main[row][i].type != '-') {
+        for (i = coordinates[1]; i < coordinates[1] + size; i++) {
+            if (Main[coordinates[0]][i].type != '-') {
                 printf("\t\tError: a ship already exists at this position.\n");
                 return 0;
             }
@@ -178,32 +150,22 @@ int selectDirection(Cell Main[ROWS][COLUMNS], char coordinates[4], char directio
     return result;
 }
 
-void create(Cell Main[ROWS][COLUMNS], char coordinates[4], char direction[2], int size, char type)
+void create(Cell Main[ROWS][COLUMNS], int coordinates[2], char direction[2], int size, char type)
 {
-    int i, row, column;
+    int i;
     for (i = 0; i < size; i++) {
         if (direction[0] == 'v') {
-            column = convertColumnToInt(coordinates[0]);
-            if (multipleCoordinates(coordinates))
-                row = ((int) (coordinates[1] - '0') * 10) + (int) (coordinates[2] - '0') + i;
-            else
-                row = (int) (coordinates[1] - '0') + i;
-            Main[row - 1][column].type = type;
+            Main[coordinates[0] + i][coordinates[1]].type = type;
             if (i + 1 < size)
-                Main[row - 1][column].next = &Main[row][column];
+                Main[coordinates[0] + i][coordinates[1]].next = &Main[coordinates[0] + i][coordinates[1]];
             if (i > 0)
-                Main[row - 1][column].prev = &Main[row - 2][column];
+                Main[coordinates[0] + i][coordinates[1]].prev = &Main[coordinates[0] + i - 1][coordinates[1]];
         } else if (direction[0] == 'h') {
-            column = convertColumnToInt(coordinates[0]) + i;
-            if (multipleCoordinates(coordinates))
-                row = ((int) (coordinates[1] - '0') * 10) + (int) (coordinates[2] - '0') - 1;
-            else
-                row = (int) (coordinates[1] - '0') - 1;
-            Main[row][column].type = type;
+            Main[coordinates[0]][coordinates[1] + i].type = type;
             if (i + 1 < size)
-                Main[row][column].next = &Main[row][column + 1];
+                Main[coordinates[0]][coordinates[1] + i].next = &Main[coordinates[0]][coordinates[1] + i + 1];
             if (i > 0)
-                Main[row][column].prev = &Main[row][column - 1];
+                Main[coordinates[0]][coordinates[1] + i].prev = &Main[coordinates[0]][coordinates[1] + i - 1];
         }
     }
 }
@@ -211,7 +173,7 @@ void create(Cell Main[ROWS][COLUMNS], char coordinates[4], char direction[2], in
 void setup(Cell Main[ROWS][COLUMNS])
 {
     int i, result;
-    char coordinates[4] = {(int) NULL}; // Don't forget the \0 at the end of an array
+    int coordinates[2] = {0};
     char direction[2];
 
     // Ships initialization
